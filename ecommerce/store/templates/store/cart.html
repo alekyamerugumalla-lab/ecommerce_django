@@ -1,0 +1,71 @@
+{% extends 'store/base.html' %}
+{% block title %}Cart — ShopDemo{% endblock %}
+
+{% block extra_css %}
+<style>
+.cart-item{display:flex;align-items:center;gap:14px;padding:14px 0;border-bottom:1px solid #f0f0e8;}
+.cart-emoji{font-size:32px;width:52px;text-align:center;}
+.cart-info{flex:1;}
+.cart-name{font-size:15px;font-weight:500;}
+.cart-cat{font-size:12px;color:#888;margin-top:2px;}
+.cart-subtotal{font-size:15px;font-weight:600;color:#1a6ef8;white-space:nowrap;}
+.summary-card{background:#fff;border:1px solid #e8e8e0;border-radius:12px;padding:1.25rem;}
+.summary-row{display:flex;justify-content:space-between;padding:7px 0;font-size:14px;}
+.summary-total{font-weight:600;font-size:15px;border-top:1px solid #e8e8e0;padding-top:10px;margin-top:4px;}
+.qty-mini{display:flex;align-items:center;gap:6px;margin-top:6px;}
+.qty-mini input{width:44px;text-align:center;padding:4px;font-size:13px;}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container">
+  <div class="page-title">🛒 Shopping cart</div>
+
+  {% if cart.items.all %}
+  <div class="grid-2" style="align-items:start;">
+    <div>
+      {% for item in cart.items.all %}
+      <div class="cart-item">
+        <div class="cart-emoji">{{ item.product.emoji }}</div>
+        <div class="cart-info">
+          <div class="cart-name">{{ item.product.name }}</div>
+          <div class="cart-cat">{{ item.product.category.name }}</div>
+          <div class="qty-mini">
+            <form method="post" action="/cart/update/{{ item.id }}/" style="display:flex;align-items:center;gap:6px;">
+              {% csrf_token %}
+              <input type="number" name="quantity" value="{{ item.quantity }}" min="1" max="99">
+              <button type="submit" class="btn btn-sm">Update</button>
+            </form>
+            <form method="post" action="/cart/remove/{{ item.id }}/">
+              {% csrf_token %}
+              <button type="submit" class="btn btn-sm btn-danger">Remove</button>
+            </form>
+          </div>
+        </div>
+        <div class="cart-subtotal">₹{{ item.get_subtotal|floatformat:0 }}</div>
+      </div>
+      {% endfor %}
+    </div>
+
+    <div class="summary-card">
+      <div style="font-size:15px;font-weight:600;margin-bottom:1rem;padding-bottom:10px;border-bottom:1px solid #e8e8e0;">Order summary</div>
+      <div class="summary-row"><span>Subtotal</span><span>₹{{ cart.get_total|floatformat:0 }}</span></div>
+      <div class="summary-row">
+        <span>Shipping</span>
+        <span>{% if cart.get_shipping == 0 %}<span style="color:#16a34a;">Free</span>{% else %}₹{{ cart.get_shipping }}{% endif %}</span>
+      </div>
+      {% if cart.get_shipping > 0 %}<div style="font-size:12px;color:#888;margin-bottom:6px;">Add ₹{{ cart.get_total|floatformat:0 }} more for free shipping</div>{% endif %}
+      <div class="summary-row summary-total"><span>Total</span><span>₹{{ cart.get_grand_total|floatformat:0 }}</span></div>
+      <a href="/checkout/" class="btn btn-primary" style="width:100%;justify-content:center;margin-top:1rem;padding:10px;">Proceed to checkout →</a>
+      <a href="/" class="btn" style="width:100%;justify-content:center;margin-top:8px;">← Continue shopping</a>
+    </div>
+  </div>
+  {% else %}
+  <div style="text-align:center;padding:3rem 1rem;color:#888;">
+    <div style="font-size:48px;margin-bottom:1rem;">🛒</div>
+    <p>Your cart is empty.</p>
+    <a href="/" class="btn btn-primary" style="margin-top:1rem;">Browse products</a>
+  </div>
+  {% endif %}
+</div>
+{% endblock %}

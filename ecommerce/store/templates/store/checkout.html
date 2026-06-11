@@ -1,0 +1,65 @@
+{% extends 'store/base.html' %}
+{% block title %}Checkout — ShopDemo{% endblock %}
+
+{% block content %}
+<div class="container">
+  <div class="page-title">💳 Checkout</div>
+
+  <form method="post" action="/checkout/place-order/">
+    {% csrf_token %}
+    <div class="grid-2" style="align-items:start;">
+      <div>
+        <div class="card" style="padding:1.25rem;margin-bottom:1rem;">
+          <div style="font-size:14px;font-weight:600;margin-bottom:1rem;padding-bottom:8px;border-bottom:1px solid #e8e8e0;">Shipping details</div>
+          <div class="form-group">
+            <label>Full name</label>
+            <input type="text" name="full_name" value="{{ user.get_full_name }}" placeholder="Jane Doe" required>
+          </div>
+          <div class="form-group">
+            <label>Address</label>
+            <textarea name="address" rows="2" placeholder="Street, City, State, PIN" required style="resize:none;"></textarea>
+          </div>
+          <div class="form-group">
+            <label>Phone number</label>
+            <input type="tel" name="phone" placeholder="+91 99999 00000" required>
+          </div>
+        </div>
+
+        <div class="card" style="padding:1.25rem;">
+          <div style="font-size:14px;font-weight:600;margin-bottom:1rem;padding-bottom:8px;border-bottom:1px solid #e8e8e0;">Payment (demo)</div>
+          <div class="form-group">
+            <label>Card number</label>
+            <input type="text" placeholder="4242 4242 4242 4242" maxlength="19" oninput="this.value=this.value.replace(/[^0-9]/g,'').replace(/(.{4})/g,'$1 ').trim()">
+          </div>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;">
+            <div class="form-group"><label>Expiry</label><input type="text" placeholder="MM/YY" maxlength="5"></div>
+            <div class="form-group"><label>CVV</label><input type="text" placeholder="123" maxlength="3"></div>
+          </div>
+          <div style="font-size:12px;color:#888;background:#f5f5f0;padding:8px 10px;border-radius:6px;">
+            🔒 This is a demo — no real payment is processed.
+          </div>
+        </div>
+      </div>
+
+      <div class="card" style="padding:1.25rem;">
+        <div style="font-size:14px;font-weight:600;margin-bottom:1rem;padding-bottom:8px;border-bottom:1px solid #e8e8e0;">Review order</div>
+        {% for item in cart.items.all %}
+        <div style="display:flex;justify-content:space-between;font-size:13px;padding:6px 0;border-bottom:1px solid #f5f5f0;">
+          <span>{{ item.product.emoji }} {{ item.product.name }} ×{{ item.quantity }}</span>
+          <span style="font-weight:500;">₹{{ item.get_subtotal|floatformat:0 }}</span>
+        </div>
+        {% endfor %}
+        <div style="margin-top:10px;">
+          <div style="display:flex;justify-content:space-between;font-size:13px;padding:5px 0;"><span>Subtotal</span><span>₹{{ cart.get_total|floatformat:0 }}</span></div>
+          <div style="display:flex;justify-content:space-between;font-size:13px;padding:5px 0;">
+            <span>Shipping</span>
+            <span>{% if cart.get_shipping == 0 %}<span style="color:#16a34a;">Free</span>{% else %}₹{{ cart.get_shipping }}{% endif %}</span>
+          </div>
+          <div style="display:flex;justify-content:space-between;font-size:15px;font-weight:600;padding:8px 0;border-top:1px solid #e8e8e0;margin-top:4px;"><span>Total</span><span>₹{{ cart.get_grand_total|floatformat:0 }}</span></div>
+        </div>
+        <button type="submit" class="btn btn-primary" style="width:100%;justify-content:center;padding:11px;margin-top:1rem;font-size:14px;">✅ Place order</button>
+      </div>
+    </div>
+  </form>
+</div>
+{% endblock %}

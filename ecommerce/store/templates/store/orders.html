@@ -1,0 +1,49 @@
+{% extends 'store/base.html' %}
+{% block title %}My Orders — ShopDemo{% endblock %}
+
+{% block extra_css %}
+<style>
+.order-card{background:#fff;border:1px solid #e8e8e0;border-radius:12px;padding:1.25rem;margin-bottom:1rem;}
+.order-header{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:10px;}
+.order-num{font-size:14px;font-weight:600;}
+.order-date{font-size:12px;color:#888;margin-top:3px;}
+.status{font-size:11px;font-weight:600;padding:3px 10px;border-radius:999px;}
+.status-confirmed{background:#dcfce7;color:#166534;}
+.status-processing{background:#fef9c3;color:#854d0e;}
+.status-shipped{background:#dbeafe;color:#1d4ed8;}
+.status-delivered{background:#d1fae5;color:#065f46;}
+.status-cancelled{background:#fee2e2;color:#991b1b;}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container">
+  <div class="page-title">📦 My orders</div>
+  {% if orders %}
+    {% for order in orders %}
+    <div class="order-card">
+      <div class="order-header">
+        <div>
+          <div class="order-num">{{ order.order_number }}</div>
+          <div class="order-date">{{ order.created_at|date:"d M Y, H:i" }}</div>
+        </div>
+        <span class="status status-{{ order.status }}">{{ order.get_status_display }}</span>
+      </div>
+      <div style="font-size:13px;color:#555;margin-bottom:10px;">
+        {% for item in order.items.all %}{{ item.product_emoji }} {{ item.product_name }} ×{{ item.quantity }}{% if not forloop.last %} · {% endif %}{% endfor %}
+      </div>
+      <div style="display:flex;justify-content:space-between;align-items:center;">
+        <span style="font-size:15px;font-weight:600;color:#1a6ef8;">₹{{ order.total|floatformat:0 }}</span>
+        <a href="/orders/{{ order.order_number }}/" class="btn btn-sm">View details →</a>
+      </div>
+    </div>
+    {% endfor %}
+  {% else %}
+  <div style="text-align:center;padding:3rem;color:#888;">
+    <div style="font-size:48px;margin-bottom:1rem;">📦</div>
+    <p>No orders yet.</p>
+    <a href="/" class="btn btn-primary" style="margin-top:1rem;">Start shopping</a>
+  </div>
+  {% endif %}
+</div>
+{% endblock %}

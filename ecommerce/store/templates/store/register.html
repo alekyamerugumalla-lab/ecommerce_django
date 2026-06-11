@@ -1,0 +1,31 @@
+{% extends 'store/base.html' %}
+{% block title %}Register — ShopDemo{% endblock %}
+
+{% block content %}
+<div style="max-width:400px;margin:3rem auto;padding:0 1rem;">
+  <div class="card" style="padding:2rem;">
+    <div style="font-size:20px;font-weight:600;margin-bottom:1.5rem;text-align:center;">Create account 🛍️</div>
+
+    <form method="post">
+      {% csrf_token %}
+      <div class="form-group">
+        <label>Full name</label>
+        <input type="text" name="name" placeholder="Jane Doe" required autofocus>
+      </div>
+      <div class="form-group">
+        <label>Email</label>
+        <input type="email" name="email" placeholder="you@example.com" required>
+      </div>
+      <div class="form-group">
+        <label>Password</label>
+        <input type="password" name="password" placeholder="Minimum 6 characters" required>
+      </div>
+      <button type="submit" class="btn btn-primary" style="width:100%;justify-content:center;padding:10px;">Create account</button>
+    </form>
+
+    <div style="text-align:center;margin-top:1.25rem;font-size:13px;color:#888;">
+      Already have an account? <a href="/login/" style="color:#1a6ef8;">Login</a>
+    </div>
+  </div>
+</div>
+{% endblock %}

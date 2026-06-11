@@ -1,0 +1,67 @@
+{% extends 'store/base.html' %}
+{% block title %}ShopDemo — Products{% endblock %}
+
+{% block extra_css %}
+<style>
+.filter-bar{display:flex;gap:8px;margin-bottom:1.25rem;flex-wrap:wrap;align-items:center;}
+.filter-chip{border:1px solid #d0d0c8;border-radius:999px;padding:5px 14px;font-size:12px;cursor:pointer;background:#fff;color:#555;text-decoration:none;font-weight:500;}
+.filter-chip:hover{background:#f0f0e8;}
+.filter-chip.active{background:#1a6ef8;color:#fff;border-color:transparent;}
+.product-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:1rem;}
+.product-card{background:#fff;border:1px solid #e8e8e0;border-radius:12px;overflow:hidden;transition:box-shadow 0.2s;}
+.product-card:hover{box-shadow:0 4px 16px rgba(0,0,0,0.08);}
+.product-img{height:160px;background:#f5f5f0;overflow:hidden;}
+.product-img img{width:100%;height:100%;object-fit:cover;transition:transform 0.3s;}
+.product-card:hover .product-img img{transform:scale(1.05);}
+.product-body{padding:0.875rem 1rem 1rem;}
+.product-cat{font-size:11px;color:#888;margin-bottom:3px;text-transform:uppercase;letter-spacing:0.04em;}
+.product-name{font-size:14px;font-weight:600;margin-bottom:6px;line-height:1.3;}
+.product-price{font-size:17px;font-weight:600;color:#1a6ef8;}
+.product-actions{display:flex;gap:6px;margin-top:10px;}
+.product-actions .btn{flex:1;justify-content:center;}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container">
+  <div class="filter-bar">
+    <span style="font-size:13px;color:#888;margin-right:2px;">Category:</span>
+    <a class="filter-chip {% if not active_category %}active{% endif %}" href="/">All</a>
+    {% for cat in categories %}
+    <a class="filter-chip {% if active_category == cat.slug %}active{% endif %}" href="/?category={{ cat.slug }}">{{ cat.name }}</a>
+    {% endfor %}
+  </div>
+
+  {% if products %}
+  <div class="product-grid">
+    {% for product in products %}
+    <div class="product-card">
+      <div class="product-img">
+        {% if product.image %}
+          <img src="{{ product.image.url }}" alt="{{ product.name }}">
+        {% else %}
+          <img src="{{ product.image_url }}" alt="{{ product.name }}" onerror="this.style.display='none';this.parentElement.innerHTML='<div style=\'display:flex;align-items:center;justify-content:center;height:100%;font-size:56px;\'>'+this.getAttribute('data-emoji')+'</div>';" data-emoji="{{ product.emoji }}">
+        {% endif %}
+      </div>
+      <div class="product-body">
+        <div class="product-cat">{{ product.category.name }}</div>
+        <div class="product-name">{{ product.name }}</div>
+        <div class="product-price">₹{{ product.price|floatformat:0 }}</div>
+        <div class="product-actions">
+          <a class="btn btn-sm" href="/product/{{ product.slug }}/">👁 Details</a>
+          <form method="post" action="/cart/add/{{ product.id }}/" style="flex:1;">
+            {% csrf_token %}
+            <input type="hidden" name="quantity" value="1">
+            <input type="hidden" name="next" value="/">
+            <button type="submit" class="btn btn-primary btn-sm" style="width:100%;justify-content:center;">+ Add</button>
+          </form>
+        </div>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+  {% else %}
+  <div style="text-align:center;padding:3rem;color:#888;">No products found in this category.</div>
+  {% endif %}
+</div>
+{% endblock %}
